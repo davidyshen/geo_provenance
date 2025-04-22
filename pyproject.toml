@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geoprovenance"
+version = "0.0.1"
+authors = [
+  { name="Your Name", email="you@example.com" },
+]
+description = "A package for geoprovenance tracking."
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License", # Choose your license
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/geoprovenance" # Replace with your repo URL
+"Bug Tracker" = "https://github.com/yourusername/geoprovenance/issues" # Replace with your repo URL
