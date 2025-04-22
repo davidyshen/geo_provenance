@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "geoprovenance"
 version = "0.0.1"
 authors = [
-  { name="Your Name", email="you@example.com" },
+  { name="David Shen", email="contact@davidshen.co.uk" },
 ]
 description = "A package for geoprovenance tracking."
 readme = "README.md"
@@ -17,6 +17,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-[project.urls]
-"Homepage" = "https://github.com/yourusername/geoprovenance" # Replace with your repo URL
-"Bug Tracker" = "https://github.com/yourusername/geoprovenance/issues" # Replace with your repo URL
+[project.scripts]
+geoprovenance = "geoprovenance.main:main"
+
+[poetry]
+
+[tool.poetry.dependencies]
+requests = "^2.32.3"
+argparse = "^1.4.0"
