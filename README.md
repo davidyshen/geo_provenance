@@ -27,7 +27,7 @@ To use data in your Python code, you can use the `load` function from the `geopr
 The `load` function allows you to load a dataset by its user-defined name, simplifying the process of accessing the data you need. The function will automatically handle the retrieval of the dataset, making it easy to work with geospatial data in your projects.
 
 ```python
-import geoprovenance as gp
+import geoprovenance as geoprov
 
 # Load the DATANAME data from the geoprovenance database
 # This will return the path to the data file
