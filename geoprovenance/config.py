@@ -1,5 +1,7 @@
 import json
 import os
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import PathCompleter
 
 # Define the directory for config within the user's home directory
 APP_CONFIG_DIR = os.path.expanduser("~/.geoprovenance")
@@ -8,6 +10,9 @@ DEFAULT_CONFIG_PATH = os.path.join(APP_CONFIG_DIR, "config.json")
 DEFAULT_DOWNLOAD_DIR = ""
 DEFAULT_METADATA_FILE = "metadata.json"
 
+def expand_path(path):
+    """Expands relative paths like ~ to their absolute equivalents."""
+    return os.path.expanduser(os.path.expandvars(path))
 
 def load_config(config_path=DEFAULT_CONFIG_PATH):
     """Loads configuration from a JSON file in the user's home directory."""
@@ -27,13 +32,12 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
         print(
             f"Configuration file {config_path} not found. Creating a new configuration file."
         )
+        path = prompt("Enter the path to the download directory: ", completer=PathCompleter())
+        path = os.path.abspath(path)  # Expand relative paths to absolute paths
         # Create a default config file with an empty download_directory
-        config_data = {"download_directory": DEFAULT_DOWNLOAD_DIR}
+        config_data = {"download_directory": path}
         with open(config_path, "w") as f:
             json.dump(config_data, f, indent=4)
-        raise Warning(
-            "Please set the download directory using 'geoprovenance config --dir'."
-            )
 
     # Ensure essential keys exist, using defaults if necessary
     config = {

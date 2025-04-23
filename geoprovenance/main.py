@@ -13,7 +13,7 @@ def download_file(url, destination_folder):
     
     # Check if the config download directory has been set
     if load_config()["download_directory"] == "":
-        raise RuntimeError(
+        raise Exception(
             "Download directory not set. Please set it using \n\n'geoprovenance config --dir <path>'\n\n"
         )
 
@@ -112,7 +112,7 @@ def main():
 
     elif args.command == "config":
         if args.dir:
-            config["download_directory"] = args.dir
+            config["download_directory"] = os.path.abspath(os.path.expanduser(os.path.expandvars(args.dir)))
             print(f"Data save directory updated to: {args.dir}")
             update_config(config)
 
@@ -176,3 +176,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+ 
