@@ -5,7 +5,7 @@ import os
 APP_CONFIG_DIR = os.path.expanduser("~/.geoprovenance")
 DEFAULT_CONFIG_PATH = os.path.join(APP_CONFIG_DIR, "config.json")
 # Default values remain relative for the default config content
-DEFAULT_DOWNLOAD_DIR = "downloads"
+DEFAULT_DOWNLOAD_DIR = ""
 DEFAULT_METADATA_FILE = "metadata.json"
 
 
