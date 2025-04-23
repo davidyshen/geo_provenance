@@ -29,10 +29,10 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
         print(
             f"Warning: Configuration file {config_path} not found. Using default configuration."
         )
-        # Optionally create a default config file here if it doesn't exist
-        # with open(config_path, 'w') as f:
-        #     f.write(get_default_config_content())
-        # print(f"Created default configuration file: {config_path}")
+        # Create a default config file here if it doesn't exist
+        with open(config_path, "w") as f:
+            f.write(get_default_config_content())
+        print(f"Created default configuration file: {config_path}")
         config_data = {}  # Start with empty if not creating default automatically
 
     # Resolve paths relative to the config file directory
@@ -50,6 +50,16 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
         "config_directory": config_dir,  # Store config dir for potential later use
     }
 
+    # Update metadata file path to always be within the downloads folder
+    config["metadata_file"] = os.path.join(
+        config["download_directory"], "metadata.json"
+    )
+
+    # Ensure the metadata file exists within the downloads folder
+    if not os.path.exists(config["metadata_file"]):
+        with open(config["metadata_file"], "w") as f:
+            json.dump([], f, indent=4)  # Initialize with an empty list
+
     # Create download directory if it doesn't exist
     os.makedirs(config["download_directory"], exist_ok=True)
 
@@ -63,6 +73,24 @@ def get_default_config_content():
         "metadata_file": DEFAULT_METADATA_FILE,
     }
     return json.dumps(default_config, indent=4)
+
+
+def update_config(new_config, config_path=DEFAULT_CONFIG_PATH):
+    """Updates the configuration file with new values."""
+    # Load the existing configuration
+    config = load_config(config_path)
+
+    # Update the configuration with new values
+    config.update(new_config)
+
+    # Ensure the application config directory exists
+    os.makedirs(os.path.dirname(config_path), exist_ok=True)
+
+    # Write the updated configuration back to the file
+    with open(config_path, "w") as f:
+        json.dump(config, f, indent=4)
+
+    print(f"Configuration updated and saved to {config_path}")
 
 
 # Example of how to create a default config if needed elsewhere
