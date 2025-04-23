@@ -4,7 +4,7 @@ import requests
 import json
 from geoprovenance.config import load_config, update_config
 from geoprovenance.metadata import add_record
-from geoprovenance.load import find_dataset_path
+from geoprovenance.find import find_dataset_path
 from urllib.parse import urlparse
 from tqdm import tqdm
 
