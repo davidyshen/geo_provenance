@@ -92,88 +92,90 @@ def main():
     )
     parser_search.add_argument("query", help="String to search for in dataset names")
 
+    # Find command
+    parser_find = subparsers.add_parser(
+        "find", help="Find the full path of a dataset by name in the metadata file"
+    )
+    parser_find.add_argument("dataset", help="Name of the dataset to find")
+
     args = parser.parse_args()
 
-    config = load_config()  # Load config from ~/.geoprovenance/config.json
 
-    if args.command == "ingest":
-        downloaded_filename = download_file(args.url, config["download_directory"])
-
-        if downloaded_filename:
-            add_record(
-                config=config,
-                url=args.url,
-                downloaded_filename=downloaded_filename,
-                data_name=args.name,
-                tags=args.tags,
-            )
-        else:
-            print("Metadata recording skipped due to download failure.")
-
-    elif args.command == "config":
+    if args.command == "config":
+        config = load_config(allow_unset = True)  # Load config from ~/.geoprovenance/config.json
         if args.dir:
             config["download_directory"] = os.path.abspath(os.path.expanduser(os.path.expandvars(args.dir)))
             print(f"Data save directory updated to: {args.dir}")
             update_config(config)
 
-            # Ensure metadata.json exists in the new directory
-            metadata_file = os.path.join(args.dir, "metadata.json")
-            if not os.path.exists(args.dir):
-                os.makedirs(args.dir, exist_ok=True)
-                print(f"Created directory: {args.dir}")
-            # Create metadata file if it doesn't exist
-            if not os.path.exists(metadata_file):
-                with open(metadata_file, "w") as f:
-                    json.dump([], f, indent=4)
-                print(f"Created metadata file at {metadata_file}")
-
         print("Current configuration:")
         for key, value in config.items():
             print(f"{key}: {value}")
 
-    elif args.command == "list":
-        if config["download_directory"]:
-            metadata_file = os.path.join(config["download_directory"], "metadata.json")
-            if os.path.exists(metadata_file):
-                with open(metadata_file, "r") as f:
-                    metadata = json.load(f)
-                    if metadata:
-                        print("Datasets and their associated tags:")
-                        for entry in metadata:
-                            print(f"- {entry['data_name']}: {', '.join(entry['tags'])}")
-                    else:
-                        print("No datasets found in metadata.")
-            else:
-                print(f"Metadata file not found in {config['download_directory']}.")
-        else:
-            print("Download directory is not set. Please set it using 'geoprovenance config --dir'.")
-
-    elif args.command == "search":
-        if config["download_directory"]:
-            metadata_file = os.path.join(config["download_directory"], "metadata.json")
-            if os.path.exists(metadata_file):
-                with open(metadata_file, "r") as f:
-                    metadata = json.load(f)
-                    results = [
-                        entry for entry in metadata 
-                        if args.query.lower() in entry["data_name"].lower() or \
-                           any(args.query.lower() in tag.lower() for tag in entry["tags"])
-                    ]
-                    if results:
-                        print("Search results:")
-                        for entry in results:
-                            print(f"- {entry['data_name']}: {', '.join(entry['tags'])}")
-                    else:
-                        print("No matching datasets found.")
-            else:
-                print(f"Metadata file not found in {config['download_directory']}.")
-        else:
-            print("Download directory is not set. Please set it using 'geoprovenance config --dir'.")
-
     else:
-        parser.print_help()
+        config = load_config()
+
+        if args.command == "ingest":
+            downloaded_filename = download_file(args.url, config["download_directory"])
+
+            if downloaded_filename:
+                add_record(
+                    config=config,
+                    url=args.url,
+                    downloaded_filename=downloaded_filename,
+                    data_name=args.name,
+                    tags=args.tags,
+                )
+            else:
+                print("Metadata recording skipped due to download failure.")
+
+
+        elif args.command == "list":
+            metadata_file = os.path.join(config["download_directory"], "metadata.json")
+            with open(metadata_file, "r") as f:
+                metadata = json.load(f)
+                if metadata:
+                    print("Datasets and their associated tags:")
+                    for entry in metadata:
+                        print(f"- {entry['data_name']}: {', '.join(entry['tags'])}")
+                else:
+                    print("No datasets found in metadata.")
+
+        elif args.command == "search":
+            metadata_file = os.path.join(config["download_directory"], "metadata.json")
+            with open(metadata_file, "r") as f:
+                metadata = json.load(f)
+                results = [
+                    entry for entry in metadata 
+                    if args.query.lower() in entry["data_name"].lower() or \
+                    any(args.query.lower() in tag.lower() for tag in entry["tags"])
+                ]
+                if results:
+                    print("Search results:")
+                    for entry in results:
+                        print(f"- {entry['data_name']}: {', '.join(entry['tags'])}")
+                else:
+                    print("No matching datasets found.")
+
+        elif args.command == "find":
+            metadata_file = os.path.join(config["download_directory"], "metadata.json")
+            with open(metadata_file, "r") as f:
+                metadata = json.load(f)
+                dataset = next(
+                    (entry for entry in metadata if entry["data_name"] == args.dataset),
+                    None,
+                )
+                if dataset:
+                    full_path = os.path.join(
+                        config["download_directory"], dataset["downloaded_filename"]
+                    )
+                    print(f"Full path: {full_path}")
+                else:
+                    print(f"Dataset '{args.dataset}' not found in metadata.")
+
+        else:
+            parser.print_help()
 
 
 if __name__ == "__main__":
     main()
- 
