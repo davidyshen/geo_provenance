@@ -13,7 +13,7 @@ def download_file(url, destination_folder):
     
     # Check if the config download directory has been set
     if load_config()["download_directory"] == "":
-        raise ValueError(
+        raise RuntimeError(
             "Download directory not set. Please set it using \n\n'geoprovenance config --dir <path>'\n\n"
         )
 
