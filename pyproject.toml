@@ -13,14 +13,12 @@ readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License", # Choose your license
+    "License :: MIT License",
     "Operating System :: OS Independent",
 ]
 
 [project.scripts]
 geoprovenance = "geoprovenance.main:main"
-
-[poetry]
 
 [tool.poetry.dependencies]
 requests = "^2.32.3"
