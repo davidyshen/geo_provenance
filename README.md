@@ -37,3 +37,9 @@ filename = gp.load("DATANAME")
 ## License
 
 `geoprovenance` was created by David Shen. It is licensed under the terms of the MIT license.
+
+## TODOs
+
+- [ ] Build R package for finding data
+- [ ] Deal with tiled data
+- [ ] Add rest of the TODOs
