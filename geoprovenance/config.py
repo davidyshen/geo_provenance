@@ -33,9 +33,10 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
             json.dump(config_data, f, indent=4)
         print("Please set the download directory using 'geoprovenance config --dir'.")
     
+    # If the download directory is set to the default value, raise an error
     if config_data["download_directory"] == DEFAULT_DOWNLOAD_DIR:
         raise ValueError(
-            f"Error: The download directory is set to the default value '{DEFAULT_DOWNLOAD_DIR}'. Please update it with \n'geoprovenance config --dir <path>'."
+            f"Error: The download directory is set to the default value '{DEFAULT_DOWNLOAD_DIR}'. Please update it with \n\n'geoprovenance config --dir <path>'."
         )
 
     # Ensure essential keys exist, using defaults if necessary
