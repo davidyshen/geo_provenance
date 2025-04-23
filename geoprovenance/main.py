@@ -10,6 +10,14 @@ from tqdm import tqdm
 
 def download_file(url, destination_folder):
     """Downloads a file from a URL to a specified folder."""
+    
+    # Check if the config download directory has been set
+    if load_config()["download_directory"] == "":
+        raise ValueError(
+            "Download directory not set. Please set it using \n\n'geoprovenance config --dir <path>'\n\n"
+        )
+
+
     print(f"Attempting to download from: {url}")
     try:
         response = requests.get(url, stream=True)
