@@ -40,6 +40,11 @@ def add_record(config, url, downloaded_filename, data_name, tags):
         (record for record in data if record["source_url"] == url), None
     )
 
+    # Check if the data_name has already been used
+    if any(record["data_name"] == data_name for record in data):
+        raise Exception(f"Error: The data name '{data_name}' already exists. Please choose a different name.")
+
+
     if existing_record:
         # Overwrite the existing record
         existing_record.update(
