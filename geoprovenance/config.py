@@ -44,7 +44,6 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
         "download_directory": config_data.get("download_directory", DEFAULT_DOWNLOAD_DIR),
     }
 
-    # Check if the metadata file exists in the downloads folder
     if config["download_directory"]:
         metadata_file = os.path.join(config["download_directory"], "metadata.json")
         if not os.path.exists(metadata_file):
