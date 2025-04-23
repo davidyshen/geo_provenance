@@ -28,14 +28,19 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
             f"Configuration file {config_path} not found. Creating a new configuration file."
         )
         # Create a default config file with an empty download_directory
-        config_data = {"download_directory": ""}
+        config_data = {"download_directory": DEFAULT_DOWNLOAD_DIR}
         with open(config_path, "w") as f:
             json.dump(config_data, f, indent=4)
         print("Please set the download directory using 'geoprovenance config --dir'.")
+    
+    if config_data["download_directory"] == DEFAULT_DOWNLOAD_DIR:
+        raise ValueError(
+            f"Error: The download directory is set to the default value '{DEFAULT_DOWNLOAD_DIR}'. Please update it with \n'geoprovenance config --dir <path>'."
+        )
 
     # Ensure essential keys exist, using defaults if necessary
     config = {
-        "download_directory": config_data.get("download_directory", ""),
+        "download_directory": config_data.get("download_directory", DEFAULT_DOWNLOAD_DIR),
     }
 
     # Check if the metadata file exists in the downloads folder
