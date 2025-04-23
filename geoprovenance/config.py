@@ -10,9 +10,11 @@ DEFAULT_CONFIG_PATH = os.path.join(APP_CONFIG_DIR, "config.json")
 DEFAULT_DOWNLOAD_DIR = ""
 DEFAULT_METADATA_FILE = "metadata.json"
 
+
 def expand_path(path):
     """Expands relative paths like ~ to their absolute equivalents."""
     return os.path.expanduser(os.path.expandvars(path))
+
 
 def load_config(config_path=DEFAULT_CONFIG_PATH, allow_unset=False):
     """Loads configuration from a JSON file in the user's home directory."""
@@ -32,7 +34,9 @@ def load_config(config_path=DEFAULT_CONFIG_PATH, allow_unset=False):
         print(
             f"Configuration file {config_path} not found. Creating a new configuration file."
         )
-        path = prompt("Enter the path to the download directory: ", completer=PathCompleter())
+        path = prompt(
+            "Enter the path to the download directory: ", completer=PathCompleter()
+        )
         path = os.path.abspath(path)  # Expand relative paths to absolute paths
         # Create a default config file with an empty download_directory
         config_data = {"download_directory": path}
@@ -41,12 +45,16 @@ def load_config(config_path=DEFAULT_CONFIG_PATH, allow_unset=False):
 
     # Ensure essential keys exist, using defaults if necessary
     config = {
-        "download_directory": config_data.get("download_directory", DEFAULT_DOWNLOAD_DIR),
+        "download_directory": config_data.get(
+            "download_directory", DEFAULT_DOWNLOAD_DIR
+        ),
     }
 
     # Check if the download directory is set, unless explicitly allowed to be unset
     if config["download_directory"] == DEFAULT_DOWNLOAD_DIR and not allow_unset:
-        raise ValueError("Download directory is not set. Please set it using 'geoprovenance config --dir'.")
+        raise ValueError(
+            "Download directory is not set. Please set it using 'geoprovenance config --dir'."
+        )
 
     # Ensure metadata.json exists in the download directory if the path is set
     if config["download_directory"]:

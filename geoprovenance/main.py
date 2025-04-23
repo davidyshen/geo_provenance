@@ -4,19 +4,19 @@ import requests
 import json
 from geoprovenance.config import load_config, update_config
 from geoprovenance.metadata import add_record
+from geoprovenance.load import find_dataset_path
 from urllib.parse import urlparse
 from tqdm import tqdm
 
 
 def download_file(url, destination_folder):
     """Downloads a file from a URL to a specified folder."""
-    
+
     # Check if the config download directory has been set
     if load_config()["download_directory"] == "":
         raise Exception(
             "Download directory not set. Please set it using \n\n'geoprovenance config --dir <path>'\n\n"
         )
-
 
     print(f"Attempting to download from: {url}")
     try:
@@ -36,11 +36,11 @@ def download_file(url, destination_folder):
         destination_path = os.path.join(destination_folder, filename)
 
         # Get the total file size from headers
-        total_size = int(response.headers.get('content-length', 0))
+        total_size = int(response.headers.get("content-length", 0))
 
         # Make progress bar
         with open(destination_path, "wb") as f, tqdm(
-            total=total_size, unit='B', unit_scale=True, desc=filename
+            total=total_size, unit="B", unit_scale=True, desc=filename
         ) as progress_bar:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
@@ -100,11 +100,14 @@ def main():
 
     args = parser.parse_args()
 
-
     if args.command == "config":
-        config = load_config(allow_unset = True)  # Load config from ~/.geoprovenance/config.json
+        config = load_config(
+            allow_unset=True
+        )  # Load config from ~/.geoprovenance/config.json
         if args.dir:
-            config["download_directory"] = os.path.abspath(os.path.expanduser(os.path.expandvars(args.dir)))
+            config["download_directory"] = os.path.abspath(
+                os.path.expanduser(os.path.expandvars(args.dir))
+            )
             print(f"Data save directory updated to: {args.dir}")
             update_config(config)
 
@@ -129,7 +132,6 @@ def main():
             else:
                 print("Metadata recording skipped due to download failure.")
 
-
         elif args.command == "list":
             metadata_file = os.path.join(config["download_directory"], "metadata.json")
             with open(metadata_file, "r") as f:
@@ -146,9 +148,10 @@ def main():
             with open(metadata_file, "r") as f:
                 metadata = json.load(f)
                 results = [
-                    entry for entry in metadata 
-                    if args.query.lower() in entry["data_name"].lower() or \
-                    any(args.query.lower() in tag.lower() for tag in entry["tags"])
+                    entry
+                    for entry in metadata
+                    if args.query.lower() in entry["data_name"].lower()
+                    or any(args.query.lower() in tag.lower() for tag in entry["tags"])
                 ]
                 if results:
                     print("Search results:")
@@ -158,20 +161,13 @@ def main():
                     print("No matching datasets found.")
 
         elif args.command == "find":
-            metadata_file = os.path.join(config["download_directory"], "metadata.json")
-            with open(metadata_file, "r") as f:
-                metadata = json.load(f)
-                dataset = next(
-                    (entry for entry in metadata if entry["data_name"] == args.dataset),
-                    None,
-                )
-                if dataset:
-                    full_path = os.path.join(
-                        config["download_directory"], dataset["downloaded_filename"]
-                    )
-                    print(f"Full path: {full_path}")
-                else:
-                    print(f"Dataset '{args.dataset}' not found in metadata.")
+            try:
+                full_path = find_dataset_path(args.dataset, config)
+                print(full_path)
+            except ValueError as e:
+                print(e)
+            except FileNotFoundError as e:
+                print(e)
 
         else:
             parser.print_help()
