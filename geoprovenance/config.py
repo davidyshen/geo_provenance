@@ -14,7 +14,7 @@ def expand_path(path):
     """Expands relative paths like ~ to their absolute equivalents."""
     return os.path.expanduser(os.path.expandvars(path))
 
-def load_config(config_path=DEFAULT_CONFIG_PATH):
+def load_config(config_path=DEFAULT_CONFIG_PATH, allow_unset=False):
     """Loads configuration from a JSON file in the user's home directory."""
     # Ensure the application config directory exists
     os.makedirs(os.path.dirname(config_path), exist_ok=True)
@@ -44,6 +44,11 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
         "download_directory": config_data.get("download_directory", DEFAULT_DOWNLOAD_DIR),
     }
 
+    # Check if the download directory is set, unless explicitly allowed to be unset
+    if config["download_directory"] == DEFAULT_DOWNLOAD_DIR and not allow_unset:
+        raise ValueError("Download directory is not set. Please set it using 'geoprovenance config --dir'.")
+
+    # Ensure metadata.json exists in the download directory if the path is set
     if config["download_directory"]:
         metadata_file = os.path.join(config["download_directory"], "metadata.json")
         if not os.path.exists(metadata_file):
@@ -66,7 +71,7 @@ def get_default_config_content():
 def update_config(new_config, config_path=DEFAULT_CONFIG_PATH):
     """Updates the configuration file with new values."""
     # Load the existing configuration
-    config = load_config(config_path)
+    config = load_config(config_path, allow_unset=True)
 
     # Update the configuration with new values
     config.update(new_config)
