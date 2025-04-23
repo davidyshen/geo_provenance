@@ -26,7 +26,13 @@ def save_metadata(metadata_file, data):
 
 def add_record(config, url, downloaded_filename, data_name, tags):
     """Adds a new record to the metadata file."""
-    metadata_file = config["metadata_file"]
+    metadata_file = os.path.join(config["download_directory"], "metadata.json")
+
+    # Ensure metadata.json exists
+    if not os.path.exists(metadata_file):
+        with open(metadata_file, "w") as f:
+            json.dump([], f, indent=4)
+
     data = load_metadata(metadata_file)
 
     # Check if the URL already exists in the metadata
@@ -56,6 +62,6 @@ def add_record(config, url, downloaded_filename, data_name, tags):
             "download_timestamp": datetime.now().isoformat(),
         }
         data.append(new_record)
-        print(f"Metadata recorded in {metadata_file}")
+        print(f"Metadata recorded in {metadata_file} \n")
 
     save_metadata(metadata_file, data)
