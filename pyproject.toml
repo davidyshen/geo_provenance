@@ -1,14 +1,10 @@
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "geoprovenance"
-version = "0.0.1"
+dynamic = ["version"]
 authors = [
   { name="David Shen", email="contact@davidshen.co.uk" },
 ]
-description = "A package for geoprovenance tracking."
+description = "A package for ingesting and metadata tracking of geospatial data."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -17,9 +13,16 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 
-[project.scripts]
+[tool.poetry]
+version = "0.0.1"
+
+[tool.poetry.scripts]
 geoprovenance = "geoprovenance.main:main"
 
 [tool.poetry.dependencies]
 requests = "^2.32.3"
 argparse = "^1.4.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
