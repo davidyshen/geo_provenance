@@ -14,8 +14,6 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
     # Ensure the application config directory exists
     os.makedirs(os.path.dirname(config_path), exist_ok=True)
 
-    config_dir = os.path.dirname(config_path)  # Get directory of config file
-
     if os.path.exists(config_path):
         with open(config_path, "r") as f:
             try:
@@ -27,41 +25,26 @@ def load_config(config_path=DEFAULT_CONFIG_PATH):
                 config_data = {}
     else:
         print(
-            f"Warning: Configuration file {config_path} not found. Using default configuration."
+            f"Configuration file {config_path} not found. Creating a new configuration file."
         )
-        # Create a default config file here if it doesn't exist
+        # Create a default config file with an empty download_directory
+        config_data = {"download_directory": ""}
         with open(config_path, "w") as f:
-            f.write(get_default_config_content())
-        print(f"Created default configuration file: {config_path}")
-        config_data = {}  # Start with empty if not creating default automatically
-
-    # Resolve paths relative to the config file directory
-    download_directory = os.path.join(
-        config_dir, config_data.get("download_directory", DEFAULT_DOWNLOAD_DIR)
-    )
-    metadata_file = os.path.join(
-        config_dir, config_data.get("metadata_file", DEFAULT_METADATA_FILE)
-    )
+            json.dump(config_data, f, indent=4)
+        print("Please set the download directory using 'geoprovenance config --dir'.")
 
     # Ensure essential keys exist, using defaults if necessary
     config = {
-        "download_directory": download_directory,
-        "metadata_file": metadata_file,
-        "config_directory": config_dir,  # Store config dir for potential later use
+        "download_directory": config_data.get("download_directory", ""),
     }
 
-    # Update metadata file path to always be within the downloads folder
-    config["metadata_file"] = os.path.join(
-        config["download_directory"], "metadata.json"
-    )
-
-    # Ensure the metadata file exists within the downloads folder
-    if not os.path.exists(config["metadata_file"]):
-        with open(config["metadata_file"], "w") as f:
-            json.dump([], f, indent=4)  # Initialize with an empty list
-
-    # Create download directory if it doesn't exist
-    os.makedirs(config["download_directory"], exist_ok=True)
+    # Check if the metadata file exists in the downloads folder
+    if config["download_directory"]:
+        metadata_file = os.path.join(config["download_directory"], "metadata.json")
+        if not os.path.exists(metadata_file):
+            os.makedirs(config["download_directory"], exist_ok=True)
+            with open(metadata_file, "w") as f:
+                json.dump([], f, indent=4)  # Initialize with an empty list
 
     return config
 
