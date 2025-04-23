@@ -1,7 +1,8 @@
 import argparse
 import os
 import requests
-from geoprovenance.config import load_config
+import json
+from geoprovenance.config import load_config, update_config
 from geoprovenance.metadata import add_record
 from urllib.parse import urlparse
 
@@ -63,6 +64,17 @@ def main():
         "--dir", help="Specify the directory where data is saved", default=None
     )
 
+    # List command
+    parser_list = subparsers.add_parser(
+        "list", help="List all dataset names and their associated tags"
+    )
+
+    # Search command
+    parser_search = subparsers.add_parser(
+        "search", help="Search for datasets by name in the metadata file"
+    )
+    parser_search.add_argument("query", help="String to search for in dataset names")
+
     args = parser.parse_args()
 
     config = load_config()  # Load config from ~/.geoprovenance/config.json
@@ -86,9 +98,45 @@ def main():
         if args.dir:
             config["download_directory"] = args.dir
             print(f"Data save directory updated to: {args.dir}")
+            update_config(config)
         print("Current configuration:")
         for key, value in config.items():
             print(f"{key}: {value}")
+
+    elif args.command == "list":
+        metadata_file = config["metadata_file"]
+        if os.path.exists(metadata_file):
+            with open(metadata_file, "r") as f:
+                metadata = json.load(f)
+                if metadata:
+                    print("Datasets and their associated tags:")
+                    for entry in metadata:
+                        print(f"- {entry['data_name']}: {', '.join(entry['tags'])}")
+                else:
+                    print("No datasets found in metadata.")
+        else:
+            print(f"Metadata file not found at {metadata_file}.")
+
+    # Modify search to include tags
+    elif args.command == "search":
+        metadata_file = config["metadata_file"]
+        if os.path.exists(metadata_file):
+            with open(metadata_file, "r") as f:
+                metadata = json.load(f)
+                results = [
+                    entry
+                    for entry in metadata
+                    if args.query.lower() in entry["data_name"].lower()
+                    or any(args.query.lower() in tag.lower() for tag in entry["tags"])
+                ]
+                if results:
+                    print("Search results:")
+                    for entry in results:
+                        print(f"- {entry['data_name']}: {', '.join(entry['tags'])}")
+                else:
+                    print("No matching datasets found.")
+        else:
+            print(f"Metadata file not found at {metadata_file}.")
 
     else:
         parser.print_help()
