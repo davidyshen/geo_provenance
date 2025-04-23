@@ -17,7 +17,7 @@ classifiers = [
 version = "0.0.1"
 
 [tool.poetry.scripts]
-geoprovenance = "geoprovenance.main:main"
+geoprovenance = "geoprovenance.cli:cli"
 
 [tool.poetry.dependencies]
 requests = "^2.32.3"

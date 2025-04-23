@@ -63,6 +63,12 @@ def load_config(config_path=DEFAULT_CONFIG_PATH, allow_unset=False):
             os.makedirs(config["download_directory"], exist_ok=True)
             with open(metadata_file, "w") as f:
                 json.dump([], f, indent=4)  # Initialize with an empty list
+    # Ensure the tmp directory exists in the download directory 
+    if config["download_directory"]:
+        tmp_dir = os.path.join(config["download_directory"], "tmp")
+        if not os.path.exists(tmp_dir):
+            os.makedirs(tmp_dir, exist_ok=True)
+            print(f"Temporary directory created at {tmp_dir}")
 
     return config
 

@@ -5,58 +5,12 @@ import json
 from geoprovenance.config import load_config, update_config
 from geoprovenance.metadata import add_record
 from geoprovenance.find import find_dataset_path
+from geoprovenance.download import download
 from urllib.parse import urlparse
 from tqdm import tqdm
 
 
-def download_file(url, destination_folder):
-    """Downloads a file from a URL to a specified folder."""
-
-    # Check if the config download directory has been set
-    if load_config()["download_directory"] == "":
-        raise Exception(
-            "Download directory not set. Please set it using \n\n'geoprovenance config --dir <path>'\n\n"
-        )
-
-    print(f"Attempting to download from: {url}")
-    try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()  # Raise an exception for bad status codes
-
-        # Extract filename from URL
-        parsed_url = urlparse(url)
-        filename = os.path.basename(parsed_url.path)
-        if not filename:  # Handle cases where path ends in / or is just domain
-            filename = (
-                url.split("/")[-1] if "/" in url else url.split(":")[-1]
-            )  # Basic fallback
-            if not filename:  # Final fallback
-                filename = "downloaded_file"
-
-        destination_path = os.path.join(destination_folder, filename)
-
-        # Get the total file size from headers
-        total_size = int(response.headers.get("content-length", 0))
-
-        # Make progress bar
-        with open(destination_path, "wb") as f, tqdm(
-            total=total_size, unit="B", unit_scale=True, desc=filename
-        ) as progress_bar:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-                progress_bar.update(len(chunk))
-
-        print(f"Successfully downloaded {url} to {destination_path} \n")
-        return filename  # Return the actual filename saved
-    except requests.exceptions.RequestException as e:
-        print(f"Error downloading {url}: {e}")
-        return None
-    except IOError as e:
-        print(f"Error saving file to {destination_path}: {e}")
-        return None
-
-
-def main():
+def cli():
     parser = argparse.ArgumentParser(description="GeoProvenance CLI Tool")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
@@ -119,11 +73,10 @@ def main():
         config = load_config()
 
         if args.command == "ingest":
-            downloaded_filename = download_file(args.url, config["download_directory"])
+            downloaded_filename = download(args.url, config["download_directory"])
 
             if downloaded_filename:
                 add_record(
-                    config=config,
                     url=args.url,
                     downloaded_filename=downloaded_filename,
                     data_name=args.name,
@@ -174,4 +127,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    cli()

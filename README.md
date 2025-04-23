@@ -42,4 +42,6 @@ filename = gp.load("DATANAME")
 
 - [ ] Build R package for finding data
 - [ ] Deal with tiled data
+- [ ] Deal with script ingest for non-direct downloadable data
+- [ ] Add more metadata to the database (e.g. bounding box, date, etc.)
 - [ ] Add rest of the TODOs

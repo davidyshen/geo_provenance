@@ -1,7 +1,7 @@
 import json
 import os
 from datetime import datetime
-
+from .config import load_config
 
 def load_metadata(metadata_file):
     """Loads metadata from the specified JSON file."""
@@ -24,9 +24,14 @@ def save_metadata(metadata_file, data):
         json.dump(data, f, indent=4)
 
 
-def add_record(config, url, downloaded_filename, data_name, tags):
+def add_record(url, downloaded_filename, data_name, tags):
     """Adds a new record to the metadata file."""
+    config = load_config()  # Load the configuration
     metadata_file = os.path.join(config["download_directory"], "metadata.json")
+
+    # Accept only lowercase names and tags
+    data_name = data_name.lower()
+    tags = [tag.lower() for tag in tags]
 
     # Ensure metadata.json exists
     if not os.path.exists(metadata_file):
