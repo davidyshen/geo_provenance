@@ -1,2 +1,0 @@
-[console_scripts]
-geoprovenance = geoprovenance.main:main
